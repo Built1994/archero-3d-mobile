@@ -1,0 +1,24 @@
+{
+    "name": "Archero 3D Mobile",
+    "short_name": "Archero3D",
+    "description": "3D 우주 슈팅 게임",
+    "start_url": "./index.html",
+    "display": "fullscreen",
+    "orientation": "portrait",
+    "background_color": "#050510",
+    "theme_color": "#3498db",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

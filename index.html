@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Archero 3D Mobile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-layer">
+            <div id="xp-bar-container">
+                <div id="xp-bar"></div>
+                <span id="level-display">Lv. 1</span>
+            </div>
+            <div id="health-container">
+                <span id="health-label">HP</span>
+                <div id="health-bar-bg">
+                    <div id="health-bar"></div>
+                </div>
+                <span id="health-text">500/500</span>
+            </div>
+        </div>
+        <div id="skill-selection-overlay" class="hidden">
+            <h2>LEVEL UP!</h2>
+            <div id="skill-cards"></div>
+        </div>
+        <div id="game-over-overlay" class="hidden">
+            <h2>GAME OVER</h2>
+            <button id="restart-btn">다시 시작</button>
+        </div>
+    </div>
+    <script src="three.min.js"></script>
+    <script src="bundle.js"></script>
+</body>
+
+</html>
