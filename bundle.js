@@ -2,22 +2,123 @@
 class InputSystem {
     constructor() {
         this.keys = {};
+        this.touchAxis = { x: 0, y: 0 };
+        this.isTouching = false;
+
+        // Keyboard support
         window.addEventListener('keydown', (e) => this.keys[e.key] = true);
         window.addEventListener('keyup', (e) => this.keys[e.key] = false);
+
+        // Touch joystick setup
+        this.setupTouchJoystick();
+    }
+
+    setupTouchJoystick() {
+        const joystick = document.createElement('div');
+        joystick.id = 'touch-joystick';
+        joystick.style.cssText = `
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            width: 120px;
+            height: 120px;
+            z-index: 1000;
+        `;
+
+        const base = document.createElement('div');
+        base.style.cssText = `
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 70%, transparent 100%);
+            border: 3px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        `;
+
+        const stick = document.createElement('div');
+        stick.id = 'joystick-stick';
+        stick.style.cssText = `
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(52,152,219,0.8) 0%, rgba(41,128,185,0.6) 100%);
+            border: 3px solid rgba(255,255,255,0.5);
+            box-shadow: 0 0 15px rgba(52,152,219,0.6), inset 0 2px 5px rgba(255,255,255,0.3);
+            left: 35px;
+            top: 35px;
+            transition: all 0.1s ease-out;
+            pointer-events: none;
+        `;
+
+        joystick.appendChild(base);
+        joystick.appendChild(stick);
+        document.body.appendChild(joystick);
+
+        this.joystickStick = stick;
+        this.joystickContainer = joystick;
+
+        const maxDistance = 35;
+
+        const handleTouch = (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = joystick.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            let dx = touch.clientX - centerX;
+            let dy = touch.clientY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > maxDistance) {
+                dx = (dx / distance) * maxDistance;
+                dy = (dy / distance) * maxDistance;
+            }
+
+            stick.style.left = `${35 + dx}px`;
+            stick.style.top = `${35 + dy}px`;
+
+            this.touchAxis.x = dx / maxDistance;
+            this.touchAxis.y = dy / maxDistance;
+            this.isTouching = true;
+        };
+
+        const resetTouch = () => {
+            stick.style.left = '35px';
+            stick.style.top = '35px';
+            this.touchAxis.x = 0;
+            this.touchAxis.y = 0;
+            this.isTouching = false;
+        };
+
+        joystick.addEventListener('touchstart', handleTouch, { passive: false });
+        joystick.addEventListener('touchmove', handleTouch, { passive: false });
+        joystick.addEventListener('touchend', resetTouch);
+        joystick.addEventListener('touchcancel', resetTouch);
     }
 
     getAxis() {
         const axis = { x: 0, y: 0 };
-        if (this.keys['ArrowUp'] || this.keys['w']) axis.y -= 1;
-        if (this.keys['ArrowDown'] || this.keys['s']) axis.y += 1;
-        if (this.keys['ArrowLeft'] || this.keys['a']) axis.x -= 1;
-        if (this.keys['ArrowRight'] || this.keys['d']) axis.x += 1;
 
-        // Normalize
-        if (axis.x !== 0 && axis.y !== 0) {
-            const length = Math.sqrt(axis.x * axis.x + axis.y * axis.y);
-            axis.x /= length;
-            axis.y /= length;
+        // Touch input (priority)
+        if (this.isTouching) {
+            axis.x = this.touchAxis.x;
+            axis.y = this.touchAxis.y;
+        } else {
+            // Keyboard input
+            if (this.keys['ArrowUp'] || this.keys['w']) axis.y -= 1;
+            if (this.keys['ArrowDown'] || this.keys['s']) axis.y += 1;
+            if (this.keys['ArrowLeft'] || this.keys['a']) axis.x -= 1;
+            if (this.keys['ArrowRight'] || this.keys['d']) axis.x += 1;
+
+            // Normalize keyboard input
+            if (axis.x !== 0 && axis.y !== 0) {
+                const length = Math.sqrt(axis.x * axis.x + axis.y * axis.y);
+                axis.x /= length;
+                axis.y /= length;
+            }
         }
 
         return axis;
